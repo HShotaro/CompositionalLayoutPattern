@@ -49,7 +49,7 @@ public class HSCollectionView: UICollectionView {
                 section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
                 section.boundarySupplementaryItems = supplementaryViews
                 return section
-            case .horizontalScrolling(let size):
+            case .horizontalScrolling(let size, let useScaling):
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(size.width), heightDimension: .absolute(size.height)))
                 let group = NSCollectionLayoutGroup.vertical(
                     layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(size.width), heightDimension: .absolute(size.height)),
@@ -61,6 +61,14 @@ public class HSCollectionView: UICollectionView {
                 section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
                 section.boundarySupplementaryItems = supplementaryViews
                 section.orthogonalScrollingBehavior = .continuous
+                if useScaling {
+                    section.visibleItemsInvalidationHandler = { visibleItems, point, environment in
+                        visibleItems.forEach { [weak self] item in
+                            guard let cell = self?.cellForItem(at: item.indexPath) else { return }
+                            self?.transformScale(cell: cell, offsetX: point.x, collectionViewWidth: environment.container.contentSize.width)
+                        }
+                    }
+                }
                 return section
             case .infiniteScrolling:
                 return nil
@@ -74,5 +82,15 @@ public class HSCollectionView: UICollectionView {
         config.scrollDirection = .vertical
         config.interSectionSpacing = 10
         return config
+    }
+    
+    private func transformScale(cell: UICollectionViewCell, offsetX: CGFloat, collectionViewWidth: CGFloat) {
+        let cellCenterX:CGFloat = self.convert(cell.center, to: nil).x - offsetX
+        let screenCenterX:CGFloat = collectionViewWidth / 2
+        let reductionRatio:CGFloat = -0.0009
+        let maxScale:CGFloat = 1
+        let cellCenterDisX:CGFloat = abs(screenCenterX - cellCenterX)
+        let newScale = reductionRatio * cellCenterDisX + maxScale
+        cell.transform = CGAffineTransform(scaleX:newScale, y:newScale)
     }
 }
