@@ -49,7 +49,7 @@ public class HSCollectionView: UICollectionView {
                 section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
                 section.boundarySupplementaryItems = supplementaryViews
                 return section
-            case .horizontalScrolling(let size, let useScaling):
+            case .horizontalScrolling(let size):
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(size.width), heightDimension: .absolute(size.height)))
                 let group = NSCollectionLayoutGroup.vertical(
                     layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(size.width), heightDimension: .absolute(size.height)),
@@ -61,17 +61,33 @@ public class HSCollectionView: UICollectionView {
                 section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
                 section.boundarySupplementaryItems = supplementaryViews
                 section.orthogonalScrollingBehavior = .continuous
-                if useScaling {
-                    section.visibleItemsInvalidationHandler = { visibleItems, point, environment in
-                        visibleItems.forEach { [weak self] item in
-                            guard let cell = self?.cellForItem(at: item.indexPath) else { return }
-                            self?.transformScale(cell: cell, offsetX: point.x, collectionViewWidth: environment.container.contentSize.width)
-                        }
+                return section
+            case .infiniteScrolling(let aspectRatio):
+                let itemFractionalwidth: CGFloat = 0.7
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(itemFractionalwidth), heightDimension: .fractionalWidth(aspectRatio)))
+                let group = NSCollectionLayoutGroup.horizontal(
+                    layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(itemFractionalwidth), heightDimension: .fractionalWidth(aspectRatio)),
+                    subitem: item,
+                    count: 1
+                )
+                let section = NSCollectionLayoutSection(group: group)
+                section.interGroupSpacing = 4
+                section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
+                section.boundarySupplementaryItems = supplementaryViews
+                section.orthogonalScrollingBehavior = .groupPagingCentered
+                section.visibleItemsInvalidationHandler = { visibleItems, point, environment in
+                    guard visibleItems.count > 2 else {
+                        return
+                    }
+//                    let initialPointX = section.contentInsets.leading - environment.container.contentSize.width * (1 - itemFractionalwidth) / 2
+//                    let pointXPerOneItemScroll = environment.container.contentSize.width * itemFractionalwidth + section.interGroupSpacing
+                    
+                    visibleItems.forEach { [weak self] item in
+                        guard let cell = self?.cellForItem(at: item.indexPath) else { return }
+                        self?.transformScale(cell: cell, offsetX: point.x, collectionViewWidth: environment.container.contentSize.width)
                     }
                 }
                 return section
-            case .infiniteScrolling:
-                return nil
             }
         }, configuration: configuration())
         return layout

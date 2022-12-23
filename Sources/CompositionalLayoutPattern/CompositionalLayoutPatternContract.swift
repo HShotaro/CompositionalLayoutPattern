@@ -9,7 +9,7 @@ import Foundation
 
 public enum CompositionalLayoutPattern {
     case grid(numberOfColumn: Int, aspectRatio: CGFloat)
-    case horizontalScrolling(size: CGSize, useScaling: Bool)
+    case horizontalScrolling(size: CGSize)
     case banner(aspectRatio: CGFloat)
-    case infiniteScrolling
+    case infiniteScrolling(aspectRatio: CGFloat)
 }
