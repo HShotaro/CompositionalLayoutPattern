@@ -71,6 +71,32 @@ public class HSCollectionView: UICollectionView {
                 section.boundarySupplementaryItems = supplementaryViews
                 section.orthogonalScrollingBehavior = .continuous
                 return section
+            case .horizontalScrollingWithFractionalWidth(let fractionalWidth, let itemAspectRatio):
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(fractionalWidth * itemAspectRatio)))
+                let group = NSCollectionLayoutGroup.vertical(
+                    layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(fractionalWidth), heightDimension: .fractionalWidth(fractionalWidth * itemAspectRatio)),
+                    subitem: item,
+                    count: 1
+                )
+                let section = NSCollectionLayoutSection(group: group)
+                section.interGroupSpacing = 4
+                section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
+                section.boundarySupplementaryItems = supplementaryViews
+                section.orthogonalScrollingBehavior = .continuous
+                return section
+            case .horizontalScrollingWithFractionalHeight(let fractionalHeight, let itemAspectRatio):
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalHeight(1.0 / itemAspectRatio), heightDimension: .fractionalHeight(fractionalHeight)))
+                let group = NSCollectionLayoutGroup.vertical(
+                    layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalHeight(fractionalHeight / itemAspectRatio), heightDimension: .fractionalHeight(fractionalHeight)),
+                    subitem: item,
+                    count: 1
+                )
+                let section = NSCollectionLayoutSection(group: group)
+                section.interGroupSpacing = 4
+                section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
+                section.boundarySupplementaryItems = supplementaryViews
+                section.orthogonalScrollingBehavior = .continuous
+                return section
             case .infiniteScrolling(let aspectRatio):
                 let itemFractionalwidth: CGFloat = 0.7
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(itemFractionalwidth), heightDimension: .fractionalWidth(aspectRatio)))
