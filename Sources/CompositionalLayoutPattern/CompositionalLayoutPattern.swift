@@ -46,7 +46,7 @@ public class HSCollectionView: UICollectionView {
                 section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
                 return section
             case .grid(let numberOfColumn, let aspectRatio):
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0)))
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1 / CGFloat(numberOfColumn) * aspectRatio)))
                 let group = NSCollectionLayoutGroup.horizontal(
                     layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1 / CGFloat(numberOfColumn) * aspectRatio)),
                     subitem: item,
