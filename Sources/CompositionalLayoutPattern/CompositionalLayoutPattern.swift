@@ -17,7 +17,16 @@ public class HSCollectionView: UICollectionView {
     private func createCompositionalLayout(patterns: [CompositionalLayoutPattern]) -> UICollectionViewCompositionalLayout? {
         let layout = UICollectionViewCompositionalLayout(sectionProvider: { section, environment in
             guard section < patterns.count, !patterns.isEmpty else {
-                return nil
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0)))
+                let group = NSCollectionLayoutGroup.horizontal(
+                    layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0)),
+                    subitem: item,
+                    count: 1
+                )
+                let section = NSCollectionLayoutSection(group: group)
+                section.interGroupSpacing = 4
+                section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
+                return section
             }
             let supplementaryViews = [
                 NSCollectionLayoutBoundarySupplementaryItem(
@@ -37,7 +46,7 @@ public class HSCollectionView: UICollectionView {
                 section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
                 return section
             case .grid(let numberOfColumn, let aspectRatio):
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1 / CGFloat(numberOfColumn) * aspectRatio)))
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0)))
                 let group = NSCollectionLayoutGroup.horizontal(
                     layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1 / CGFloat(numberOfColumn) * aspectRatio)),
                     subitem: item,
@@ -76,11 +85,15 @@ public class HSCollectionView: UICollectionView {
                 section.boundarySupplementaryItems = supplementaryViews
                 section.orthogonalScrollingBehavior = .groupPagingCentered
                 section.visibleItemsInvalidationHandler = { visibleItems, point, environment in
-                    guard visibleItems.count > 2 else {
-                        return
+                    let initialPointX = section.contentInsets.leading - environment.container.contentSize.width * (1 - itemFractionalwidth) / 2
+                    let pointXPerOneItemScroll = environment.container.contentSize.width * itemFractionalwidth + section.interGroupSpacing
+                    let numberOfItems = 20
+                    
+                    if point.x < initialPointX {
+//                        self.setContentOffset(CGPoint(x: CGFloat(numberOfItems / 2) * pointXPerOneItemScroll, y: self.contentOffset.y), animated: false)
+                    } else if initialPointX + CGFloat(numberOfItems - 1) * pointXPerOneItemScroll < point.x {
+                        self.setContentOffset(CGPoint(x: CGFloat(numberOfItems / 2) * pointXPerOneItemScroll, y: self.contentOffset.y), animated: false)
                     }
-//                    let initialPointX = section.contentInsets.leading - environment.container.contentSize.width * (1 - itemFractionalwidth) / 2
-//                    let pointXPerOneItemScroll = environment.container.contentSize.width * itemFractionalwidth + section.interGroupSpacing
                     
                     visibleItems.forEach { [weak self] item in
                         guard let cell = self?.cellForItem(at: item.indexPath) else { return }
