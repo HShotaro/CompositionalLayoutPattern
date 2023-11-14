@@ -8,6 +8,7 @@
 import Foundation
 
 public enum CompositionalLayoutPattern {
+    case selfSizing
     case grid(numberOfColumn: Int, aspectRatio: CGFloat)
     case horizontalScrolling(size: CGSize)
     case horizontalScrollingWithFractionalWidth(fractionalWidth: CGFloat, itemAspectRatio: CGFloat)

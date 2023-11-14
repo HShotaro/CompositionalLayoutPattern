@@ -34,6 +34,28 @@ public class HSCollectionView: UICollectionView {
                 )
             ]
             switch patterns[section] {
+            case .selfSizing:
+                let itemSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .estimated(100.0)
+                )
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+                let itemGroupSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .estimated(100.0)
+                )
+                let itemGroup = NSCollectionLayoutGroup.horizontal(
+                    layoutSize: itemGroupSize,
+                    subitem: item,
+                    count: 1
+                )
+
+                let section = NSCollectionLayoutSection(group: itemGroup)
+                section.interGroupSpacing = 4
+                section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
+                section.boundarySupplementaryItems = supplementaryViews
+                return section
             case .banner(let aspectRatio):
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(aspectRatio)))
                 let group = NSCollectionLayoutGroup.horizontal(
